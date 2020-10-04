@@ -4,7 +4,8 @@ from scipy.spatial import distance
 import numpy as np
 import os
 
-os.environ['KMP_DUPLICATE_LIB_OK']='True'
+os.environ['KMP_DUPLICATE_LIB_OK']= 'True'
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 embed = hub.load("https://tfhub.dev/google/universal-sentence-encoder/4")
 
 def encode_captions(captions):
@@ -19,8 +20,6 @@ def topk_similar(target, captions, embedding_matrix, topk=3):
         target_embedding = session.run(embed(target))
 
     distances = distance.cdist(target_embedding, embedding_matrix, "cosine")[0]
-    min_index = np.argmin(distances)
-    min_distance = distances[min_index]
-    max_similarity = 1 - min_distance
-
-    return (captions[min_index], max_similarity)
+    topk_indices = np.argsort(distances)[:topk]
+    topk_results = [(captions[idx], 1 - distances[idx]) for idx in topk_indices]
+    return topk_results

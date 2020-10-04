@@ -16,6 +16,10 @@ import warnings
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 warnings.filterwarnings("ignore")
 
+MODEL_PATH = "BEST_checkpoint_coco_5_cap_per_img_5_min_word_freq.pth.tar"
+WORDMAP_PATH = "WORDMAP_coco_5_cap_per_img_5_min_word_freq.json"
+BEAM_SIZE = 5
+
 
 def caption_image_beam_search(encoder, decoder, image_path, word_map, beam_size=3):
     """
@@ -188,10 +192,7 @@ def visualize_att(image_path, seq, alphas, rev_word_map, smooth=True):
         plt.axis('off')
     plt.show()
 
-def caption_video(frames_path, granularity=3, frame_offset=1):
-    MODEL_PATH = "BEST_checkpoint_coco_5_cap_per_img_5_min_word_freq.pth.tar"
-    WORDMAP_PATH = "WORDMAP_coco_5_cap_per_img_5_min_word_freq.json"
-    BEAM_SIZE = 5
+def caption_video(frames_path, granularity=1, frame_offset=0):
 
     # Load model
     checkpoint = torch.load(MODEL_PATH, map_location=str(device))
@@ -207,7 +208,7 @@ def caption_video(frames_path, granularity=3, frame_offset=1):
         word_map = json.load(j)
     rev_word_map = {v: k for k, v in word_map.items()}  # ix2word
 
-    caption_timestamps = {}
+    caption_timestamps = []
     frames_list = sorted(os.listdir(frames_path))
 
     for i in range(0, len(frames_list), granularity):
@@ -221,10 +222,11 @@ def caption_video(frames_path, granularity=3, frame_offset=1):
         seconds = str(total_seconds_elapsed%60).zfill(2)
         timestamp = minutes + ":" + seconds
 
-        if caption not in caption_timestamps:
-            caption_timestamps[caption] = [timestamp]
-        else:
-            caption_timestamps[caption].append(timestamp)
+        caption_timestamps.append({
+            "caption": caption,
+            "timestamp": timestamp,
+            "seconds_elapsed": total_seconds_elapsed
+        })
 
         if i % 100 == 0:
             print("Processed %d frames" % i)
