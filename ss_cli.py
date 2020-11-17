@@ -1,8 +1,8 @@
 import os
 import sys
 from caption import caption_video
-# from semantic_similarity import encode_captions, topk_similar
 from search_client import SearchClient
+from semantic_similarity import embed_text
 import pickle
 import shutil
 
@@ -45,17 +45,32 @@ if __name__ == '__main__':
 
         shutil.rmtree(folder)
 
-    searchClient = SearchClient()
-    searchClient.bulk_index(caption_timestamps, video_name)
+    # Compute and store the sentence embedding for each caption
+    captions = [doc["caption"] for doc in caption_timestamps]
+    caption_vectors = embed_text(captions)
+
+    for i, doc in enumerate(caption_timestamps):
+        doc["caption_vector"] = caption_vectors[i]
+
+    searchClient = SearchClient(search_field="caption")
+    searchClient.index_documents(caption_timestamps, video_name)
 
     while True:
         search_phrase = input("\nEnter a search phrase >> ")
-        top_matches = searchClient.search(search_phrase, video_name, "caption")
-        print("\nTop %d Matches:" % len(top_matches))
+        top_matches = searchClient.search_as_you_type(search_phrase, video_name)
+        print("\nTop %d Search As You Type Matches:" % len(top_matches))
 
-        for match in top_matches:
-            score, result = match
+        for score, match in top_matches:
             print("-"*60)
             print("SCORE: %s" % score)
-            print("CAPTION: %s" % result["caption"])
-            print("TIMESTAMP: %s" % result["timestamp"])
+            print("CAPTION: %s" % match["caption"])
+            print("TIMESTAMP: %s" % match["timestamp"])
+
+        top_matches = searchClient.search_similar(embed_text([search_phrase])[0], video_name)
+        print("\nTop %d Similar Matches:" % len(top_matches))
+
+        for score, match in top_matches:
+            print("-"*60)
+            print("SCORE: %s" % score)
+            print("CAPTION: %s" % match["caption"])
+            print("TIMESTAMP: %s" % match["timestamp"])

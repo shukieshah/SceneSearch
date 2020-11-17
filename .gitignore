@@ -3,4 +3,5 @@ video_frames/
 *.mp4
 *.json
 *.tar
+*.pickle
 __pycache__/
