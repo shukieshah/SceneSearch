@@ -1,5 +1,5 @@
 .DS_STORE
-video_frames/
+video_frames_*/
 *.mp4
 *.json
 *.tar

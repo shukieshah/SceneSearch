@@ -71,7 +71,7 @@ class SearchClient():
         helpers.bulk(self.es, actions)
         self.__refresh_index(index_name)
 
-    def search_as_you_type(self, search_phrase, index_name, topk=3):
+    def search_as_you_type(self, search_phrase, index_name, topk=10):
         res = self.es.search(
             index = index_name,
             size = topk,
@@ -80,9 +80,9 @@ class SearchClient():
                 "_source": {"exclude": ["%s_vector" % self.search_field]}
             }
         )
-        return [(hit["_score"], hit["_source"]) for hit in res['hits']['hits']]
+        return [{"score": hit["_score"], "document": hit["_source"]} for hit in res['hits']['hits']]
 
-    def search_similar(self, query_vector, index_name, topk=3):
+    def search_similar(self, query_vector, index_name, topk=10):
         res = self.es.search(
             index = index_name,
             size = topk,
@@ -91,4 +91,4 @@ class SearchClient():
                 "_source": {"exclude": ["%s_vector" % self.search_field]}
             }
         )
-        return [(hit["_score"], hit["_source"]) for hit in res['hits']['hits']]
+        return [{"score": hit["_score"], "document": hit["_source"]} for hit in res['hits']['hits']]

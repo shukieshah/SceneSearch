@@ -60,17 +60,17 @@ if __name__ == '__main__':
         top_matches = searchClient.search_as_you_type(search_phrase, video_name)
         print("\nTop %d Search As You Type Matches:" % len(top_matches))
 
-        for score, match in top_matches:
+        for result in top_matches:
             print("-"*60)
-            print("SCORE: %s" % score)
-            print("CAPTION: %s" % match["caption"])
-            print("TIMESTAMP: %s" % match["timestamp"])
+            print("SCORE: %s" % result["score"])
+            print("CAPTION: %s" % match["document"]["caption"])
+            print("TIMESTAMP: %s" % match["document"]["timestamp"])
 
         top_matches = searchClient.search_similar(embed_text([search_phrase])[0], video_name)
         print("\nTop %d Similar Matches:" % len(top_matches))
 
-        for score, match in top_matches:
+        for result in top_matches:
             print("-"*60)
-            print("SCORE: %s" % score)
-            print("CAPTION: %s" % match["caption"])
-            print("TIMESTAMP: %s" % match["timestamp"])
+            print("SCORE: %s" % result["score"])
+            print("CAPTION: %s" % match["document"]["caption"])
+            print("TIMESTAMP: %s" % match["document"]["timestamp"])

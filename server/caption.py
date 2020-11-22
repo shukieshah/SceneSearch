@@ -218,18 +218,19 @@ def caption_video(frames_path, granularity=1, frame_offset=0):
         caption = " ".join(words[1:-1])
 
         total_seconds_elapsed = int(frame_img.split('-')[1][:-4]) - frame_offset
-        minutes = str(total_seconds_elapsed//60).zfill(2)
-        seconds = str(total_seconds_elapsed%60).zfill(2)
-        timestamp = minutes + ":" + seconds
+        minutes = str(total_seconds_elapsed // 60)
+        seconds = str(total_seconds_elapsed % 60)
+        timestamp = "%sm%ss" % (minutes, seconds)
 
         caption_timestamps.append({
             "caption": caption,
             "timestamp": timestamp,
-            "seconds_elapsed": total_seconds_elapsed
+            "seconds_elapsed": total_seconds_elapsed,
+            "image_path": frames_path + frame_img
         })
 
-        if i % 100 == 0:
-            print("Processed %d frames" % i)
+        # if i % 100 == 0:
+        #     print("Processed %d frames" % i)
         # print("Timestamp: %s, Caption: %s" %(timestamp, caption))
 
     return caption_timestamps
