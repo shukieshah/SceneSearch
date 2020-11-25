@@ -226,7 +226,7 @@ def caption_video(frames_path, granularity=1, frame_offset=0):
             "caption": caption,
             "timestamp": timestamp,
             "seconds_elapsed": total_seconds_elapsed,
-            "image_path": frames_path + frame_img
+            "image_path": frames_path.split('/')[-2] + '/' + frame_img
         })
 
         # if i % 100 == 0:

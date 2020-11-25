@@ -16,7 +16,7 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 def process_video():
     video_id = request.args.get('video_id', '')
     granularity = int(request.args.get('granularity', ''))
-    video_frames_path = "./video_frames_%s/" % video_id
+    video_frames_path = "../client/scene-search-react-app/public/images/video_frames_%s/" % video_id
 
     try:
         download_yt_video(video_id)
