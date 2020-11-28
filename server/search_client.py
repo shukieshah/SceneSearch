@@ -64,9 +64,14 @@ class SearchClient():
     def __refresh_index(self, index_name):
         self.es.indices.refresh(index=index_name)
 
+    def __delete_all_indices(self):
+        self.es.indices.delete(index='_all')
+
     def index_documents(self, documents, index_name):
-        if not self.es.indices.exists(index_name):
-            self.__create_index(index_name)
+        # if not self.es.indices.exists(index_name):
+        #     self.__create_index(index_name)
+        self.__delete_all_indices()
+        self.__create_index(index_name)
         actions = [{ "_index": index_name, "_id": i, "_source": documents[i] } for i in range(len(documents))]
         helpers.bulk(self.es, actions)
         self.__refresh_index(index_name)

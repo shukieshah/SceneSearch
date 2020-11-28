@@ -16,12 +16,13 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 def process_video():
     video_id = request.args.get('video_id', '')
     granularity = int(request.args.get('granularity', ''))
-    video_frames_path = "../client/scene-search-react-app/public/images/video_frames_%s/" % video_id
+    video_frames_path = "../client/scene-search-react-app/src/images/video_frames/"
+    video_title = None
 
     try:
-        download_yt_video(video_id)
+        video_title = download_yt_video(video_id)
     except Exception:
-        return jsonify({"success": False, "error_message": "invalid youtube video id"})
+        return jsonify({"success": False, "error_message": "Something went wrong. Please ensure the video exists on YouTube and doesn't exceed 30 minutes in duration."})
 
     extract_video_frames(video_frames_path, video_id)
     caption_timestamps = caption_video(video_frames_path, granularity=granularity, frame_offset=1)
@@ -34,7 +35,7 @@ def process_video():
         doc["caption_vector"] = caption_vectors[i]
 
     searchClient.index_documents(caption_timestamps, video_id.lower())
-    return jsonify({"success": True})
+    return jsonify({"success": True, "video_title": video_title})
 
 @app.route('/search_as_you_type')
 @cross_origin()
